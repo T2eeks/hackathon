@@ -1,0 +1,47 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-ассистент для напоминаний</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="img/Logo.png" alt="Logo">
+        </div>
+        <nav>
+            <a href="index.html">Главная</a>
+            <a href="about.html">О нас</a>
+        </nav>
+        <a href="#" class="user-profile" id="notes-link"><span id="user-login">Мои заметки</span></a>
+    </header>
+    <main>
+        <div class="note-creation">
+            <h2>Создать заметку</h2>
+            <textarea id="note-text" placeholder="Введите текст заметки..." rows="4" cols="50"></textarea>
+            <button class="record-btn" id="record-btn" onclick="startRecording()">Записать голос</button>
+            <button class="record-btn" id="stop-btn" style="display: none;" onclick="stopRecording()">Остановить запись</button>
+            <button class="record-btn" id="play-btn" style="display: none;" onclick="playAudio()">Прослушать</button>
+            <button class="record-btn" id="save-btn" style="display: none;" onclick="saveNote()">Сохранить</button>
+            <button class="record-btn" id="record-again-btn" style="display: none;" onclick="recordAgain()">Перезаписать</button>
+            <button class="record-btn" id="save-text-btn" style="display: none;" onclick="saveTextNote()">Сохранить заметку</button>
+            <audio id="audio-player" style="display: none;"></audio>
+        </div>
+        <button class="record-btn" onclick="createRequest()">Создать запрос</button>
+        <div class="notes-overlay" id="notes-overlay"></div>
+        <div class="notes-sidebar" id="notes-sidebar">
+            <div class="notes-header">
+                <h3>Мои заметки</h3>
+                <button class="close-notes" id="close-notes">×</button>
+            </div>
+            <div class="notes-items" id="notes-items"></div>
+        </div>
+        <div class="notification" id="notification"></div>
+    </main>
+    <script src="js/script.js"></script>
+</body>
+</html>

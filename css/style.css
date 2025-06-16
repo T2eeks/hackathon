@@ -1,0 +1,255 @@
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #F0F2F5;
+    margin: 0;
+    padding: 0;
+    color: #1c2526;
+    font-weight: 600;
+    overflow-x: hidden;
+}
+
+header {
+    background-color: #D9D9D9;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.logo img {
+    height: 40px;
+    vertical-align: middle;
+    transition: transform 0.3s ease;
+}
+
+.logo img:hover {
+    transform: scale(1.1);
+}
+
+nav {
+    display: flex;
+    align-items: center;
+    margin-left: 20px;
+}
+
+nav a {
+    color: #1c2526;
+    text-decoration: none;
+    margin: 0 20px;
+    font-weight: 700;
+    position: relative;
+    padding: 15px 20px;
+    transition: all 0.3s ease;
+}
+
+nav a:hover {
+    transform: scale(1.1);
+}
+
+.user-profile {
+    margin-left: auto;
+    color: #1c2526;
+    text-decoration: none;
+    font-weight: 700;
+    padding: 15px 20px;
+    transition: transform 0.3s ease;
+}
+
+.user-profile:hover {
+    transform: scale(1.1);
+    color: #ffcc00;
+}
+
+.note-creation {
+    text-align: center;
+    margin: 50px auto;
+    max-width: 600px;
+}
+
+.note-creation h2 {
+    font-weight: 900;
+    color: #1c2526;
+    margin-bottom: 20px;
+    animation: fadeIn 1s ease-in-out forwards;
+    opacity: 0;
+}
+
+#note-text {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    border: 2px solid #D9D9D9;
+    border-radius: 10px;
+    background-color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    resize: vertical;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    display: block;
+    margin-bottom: 10px;
+}
+
+#note-text:empty + .record-btn,
+#note-text:not(:empty) ~ #save-text-btn {
+    display: inline-block;
+}
+
+.record-btn {
+    display: none;
+    padding: 18px 22px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #000000;
+    background-color: #ffcc00;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    margin: 10px;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.record-btn:hover {
+    transform: scale(1.1);
+    background-color: #e6b800;
+}
+
+#stop-btn, #play-btn, #save-btn, #record-again-btn {
+    background-color: #4a4a4a;
+}
+
+#stop-btn:hover, #play-btn:hover, #save-btn:hover, #record-again-btn:hover {
+    background-color: #666666;
+}
+
+#audio-player {
+    margin-top: 10px;
+}
+
+.notes-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.notes-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.notes-sidebar {
+    position: fixed;
+    top: 0;
+    right: -500px; /* Начальное положение за экраном */
+    width: 300px;
+    height: 100%;
+    background-color: white;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+    transition: right 0.5s ease-in-out;
+    padding: 20px;
+    z-index: 1001;
+    overflow-y: auto;
+}
+
+.notes-sidebar.active {
+    right: 0; /* Плавно выезжает */
+}
+
+.notes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.close-notes {
+    font-size: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.notes-items {
+    margin-bottom: 20px;
+}
+
+.notes-items ul {
+    list-style: none;
+    padding: 0;
+}
+
+.notes-items ul li {
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.3s ease;
+}
+
+.notes-items ul li:hover {
+    background-color: #f0f0f0; /* Затемнение при наведении */
+}
+
+.notes-items .text-note::before {
+    content: url('img/node.png'); /* Иконка для текста */
+    margin-right: 5px;
+}
+
+.notes-items .voice-note::before {
+    content: url('img/micro.png'); /* Иконка для голоса */
+    margin-right: 5px;
+}
+
+.note-detail {
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.note-detail p {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+.note-detail img {
+    vertical-align: middle;
+    width: 20px;
+    margin-right: 5px;
+}
+
+.note-detail audio {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.note-detail button {
+    padding: 8px 15px;
+    background-color: #ffcc00;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.note-detail button:hover {
+    background-color: #e6b800;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+    to { opacity: 0; }
+}

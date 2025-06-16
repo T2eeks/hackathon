@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -17,22 +16,24 @@
         <nav>
             <a href="index.html">Главная</a>
             <a href="about.html">О нас</a>
+            <a href="#" class="user-profile" id="notes-link"><span id="user-login">Мои заметки</span></a>
+            <a href="#" id="logout-btn" class="auth-only" style="display: none;">Выйти</a>
         </nav>
-        <a href="#" class="user-profile" id="notes-link"><span id="user-login">Мои заметки</span></a>
+        
     </header>
     <main>
         <div class="note-creation">
             <h2>Создать заметку</h2>
             <textarea id="note-text" placeholder="Введите текст заметки..." rows="4" cols="50"></textarea>
-            <button class="record-btn" id="record-btn" onclick="startRecording()">Записать голос</button>
-            <button class="record-btn" id="stop-btn" style="display: none;" onclick="stopRecording()">Остановить запись</button>
-            <button class="record-btn" id="play-btn" style="display: none;" onclick="playAudio()">Прослушать</button>
-            <button class="record-btn" id="save-btn" style="display: none;" onclick="saveNote()">Сохранить</button>
-            <button class="record-btn" id="record-again-btn" style="display: none;" onclick="recordAgain()">Перезаписать</button>
-            <button class="record-btn" id="save-text-btn" style="display: none;" onclick="saveTextNote()">Сохранить заметку</button>
+            <button class="record-btn" id="record-btn">Записать голос</button>
+            <button class="record-btn" id="stop-btn" style="display: none;">Остановить запись</button>
+            <button class="record-btn" id="play-btn" style="display: none;">Прослушать</button>
+            <button class="record-btn" id="save-btn" style="display: none;">Сохранить</button>
+            <button class="record-btn" id="record-again-btn" style="display: none;">Перезаписать</button>
+            <button class="record-btn" id="save-text-btn" style="display: none;">Сохранить заметку</button>
             <audio id="audio-player" style="display: none;"></audio>
         </div>
-        <button class="record-btn" onclick="createRequest()">Создать запрос</button>
+        <!-- Убрал <button onclick="createRequest()">, так как функции нет -->
         <div class="notes-overlay" id="notes-overlay"></div>
         <div class="notes-sidebar" id="notes-sidebar">
             <div class="notes-header">

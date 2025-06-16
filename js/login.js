@@ -1,31 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const registerBtn = document.getElementById('register-btn');
+    const loginBtn = document.getElementById('login-btn');
     const notification = document.getElementById('notification');
-    const email = document.getElementById('email');
     const username = document.getElementById('username');
     const password = document.getElementById('password');
-    const confirmPassword = document.getElementById('confirm-password');
 
     function validateField(input) {
         let isValid = true;
-        if (input.id === 'email') {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            isValid = emailRegex.test(input.value.trim());
-        } else if (input.id === 'username') {
+        if (input.id === 'username') {
             isValid = input.value.trim().length > 0 && input.value.trim().length <= 15;
-        } else if (input.id === 'password' || input.id === 'confirm-password') {
-            const passwordValue = password.value.trim();
-            const confirmPasswordValue = confirmPassword.value.trim();
+        } else if (input.id === 'password') {
             const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
-            isValid = passwordRegex.test(passwordValue) && passwordValue === confirmPasswordValue;
-            password.classList.toggle('invalid', !isValid);
-            confirmPassword.classList.toggle('invalid', !isValid);
+            isValid = passwordRegex.test(input.value.trim());
         }
         input.classList.toggle('invalid', !isValid);
         return isValid;
     }
 
-    [email, username, password, confirmPassword].forEach(input => {
+    [username, password].forEach(input => {
         input.addEventListener('input', () => validateField(input));
     });
 
@@ -40,24 +31,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    registerBtn.addEventListener('click', () => {
-        console.log('Кнопка регистрации нажата');
-        const isEmailValid = validateField(email);
+    loginBtn.addEventListener('click', () => {
+        console.log('Кнопка входа нажата');
         const isUsernameValid = validateField(username);
         const isPasswordValid = validateField(password);
-        const isConfirmValid = validateField(confirmPassword);
 
-        console.log('Валидация:', { isEmailValid, isUsernameValid, isPasswordValid, isConfirmValid });
+        console.log('Валидация:', { isUsernameValid, isPasswordValid });
 
-        if (isEmailValid && isUsernameValid && isPasswordValid && isConfirmValid) {
+        if (isUsernameValid && isPasswordValid) {
             const userData = {
                 username: username.value.trim(),
-                email: email.value.trim(),
                 password: password.value.trim()
             };
             console.log('Отправляем данные:', userData);
 
-            fetch('http://localhost:5057/api/auth/register', {
+            fetch('http://localhost:5057/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(userData)
@@ -65,8 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => {
                 console.log('Ответ сервера:', response);
                 if (!response.ok) {
-                    if (response.status === 400) throw new Error('Пользователь уже существует или неверные данные');
-                    throw new Error(`Ошибка регистрации: ${response.statusText}`);
+                    if (response.status === 401) throw new Error('Неверное имя пользователя или пароль');
+                    throw new Error(`Ошибка входа: ${response.statusText}`);
                 }
                 return response.json();
             })
@@ -76,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('user', data.user.username);
                     localStorage.setItem('userId', data.user.id);
-                    showNotification('Регистрация успешна!', true);
+                    showNotification('Вход успешен!', true);
                     setTimeout(() => {
                         window.location.href = 'index.html';
                     }, 1000);
@@ -93,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    document.getElementById('close-register').addEventListener('click', () => {
+    document.getElementById('close-login').addEventListener('click', () => {
         window.location.href = 'index.html';
     });
 });

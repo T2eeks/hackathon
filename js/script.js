@@ -3,8 +3,8 @@ let audioChunks = [];
 let audioUrl;
 let isRecording = false;
 let recordTimeout;
+let token = localStorage.getItem('token');
 
-// Установка логина при загрузке
 window.onload = function() {
     const user = localStorage.getItem('user');
     if (user) {
@@ -61,31 +61,53 @@ function playAudio() {
 }
 
 function saveNote() {
-    if (!localStorage.getItem('user')) {
-        showNotification('Пожалуйста, зарегистрируйтесь для сохранения.');
-        window.location.href = 'register.html';
+    if (!token) {
+        showNotification('Пожалуйста, войдите или зарегистрируйтесь.');
         return;
     }
     const noteText = document.getElementById('note-text').value || 'Голосовая заметка';
-    saveNoteLocally({ text: noteText, type: 'voice', audioUrl });
-    showNotification('Заметка сохранена!');
-    console.log('Сохранена заметка:', noteText, audioUrl);
-    resetRecording();
+    const audioBlob = audioUrl ? new Blob([audioUrl], { type: 'audio/wav' }) : null;
+    const formData = new FormData();
+    formData.append('text', noteText);
+    if (audioBlob) formData.append('audio', audioBlob, 'voice.wav');
+
+    fetch('/api/notes', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(() => {
+        showNotification('Заметка сохранена!');
+        resetRecording();
+        showNotesModal();
+    })
+    .catch(error => showNotification('Ошибка сохранения: ' + error));
 }
 
 function saveTextNote() {
-    if (!localStorage.getItem('user')) {
-        showNotification('Пожалуйста, зарегистрируйтесь для сохранения.');
-        window.location.href = 'register.html';
+    if (!token) {
+        showNotification('Пожалуйста, войдите или зарегистрируйтесь.');
         return;
     }
     const noteText = document.getElementById('note-text').value;
     if (noteText) {
-        saveNoteLocally({ text: noteText, type: 'text' });
-        showNotification('Заметка сохранена!');
-        console.log('Сохранен текст:', noteText);
-        document.getElementById('note-text').value = '';
-        document.getElementById('save-text-btn').style.display = 'none';
+        fetch('/api/notes', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ text: noteText, type: 'text' })
+        })
+        .then(response => response.json())
+        .then(() => {
+            showNotification('Заметка сохранена!');
+            document.getElementById('note-text').value = '';
+            document.getElementById('save-text-btn').style.display = 'none';
+            showNotesModal();
+        })
+        .catch(error => showNotification('Ошибка сохранения: ' + error));
     }
 }
 
@@ -116,9 +138,8 @@ document.getElementById('note-text').addEventListener('input', function() {
 
 function createRequest() {
     if (!confirm('Действительно хотите создать запрос?')) return;
-    if (!localStorage.getItem('user')) {
-        showNotification('Пожалуйста, зарегистрируйтесь для создания запроса.');
-        window.location.href = 'register.html';
+    if (!token) {
+        showNotification('Пожалуйста, войдите или зарегистрируйтесь.');
         return;
     }
     const sidebar = document.getElementById('notes-sidebar');

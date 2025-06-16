@@ -145,7 +145,7 @@ nav a:hover {
 .notes-sidebar {
     position: fixed;
     top: 0;
-    right: -500px; /* Начальное положение за экраном */
+    right: -500px;
     width: 300px;
     height: 100%;
     background-color: white;
@@ -157,7 +157,7 @@ nav a:hover {
 }
 
 .notes-sidebar.active {
-    right: 0; /* Плавно выезжает */
+    right: 0; 
 }
 
 .notes-header {
@@ -190,16 +190,16 @@ nav a:hover {
 }
 
 .notes-items ul li:hover {
-    background-color: #f0f0f0; /* Затемнение при наведении */
+    background-color: #f0f0f0; 
 }
 
 .notes-items .text-note::before {
-    content: url('img/node.png'); /* Иконка для текста */
+    content: url('img/node.png'); 
     margin-right: 5px;
 }
 
 .notes-items .voice-note::before {
-    content: url('img/micro.png'); /* Иконка для голоса */
+    content: url('img/micro.png'); 
     margin-right: 5px;
 }
 
@@ -238,6 +238,77 @@ nav a:hover {
 
 .note-detail button:hover {
     background-color: #e6b800;
+}
+
+
+.register-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #F0F2F5;
+}
+
+.register-box {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 400px;
+    text-align: center;
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+.register-box h2 {
+    font-weight: 900;
+    color: #1c2526;
+    margin-bottom: 20px;
+}
+
+.register-box input {
+    width: 80%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 2px solid #D9D9D9;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.register-box input.invalid {
+    border-color: #ffebee;
+    background-color: #fff3f3;
+}
+
+.register-box button {
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    background-color: #ffcc00;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    margin: 10px;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.register-box button:hover {
+    transform: scale(1.1);
+    background-color: #e6b800;
+}
+
+#close-register {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+#notification.show {
+    display: block;
+    animation: fadeIn 0.5s ease-out;
 }
 
 @keyframes fadeIn {

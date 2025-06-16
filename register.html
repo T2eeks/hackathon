@@ -1,3 +1,4 @@
+<DOCUMENT filename="register.html">
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -5,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Регистрация</title>
     <link rel="stylesheet" href="css/style.css">
+    <base href="/">
 </head>
 <body>
     <div class="register-container">
@@ -18,48 +20,11 @@
             <input type="text" id="username" placeholder="Логин (до 15 символов)" oninput="validateField(this)">
             <input type="password" id="password" placeholder="Пароль" oninput="validateField(this)">
             <input type="password" id="confirm-password" placeholder="Подтвердите пароль" oninput="validateField(this)">
-            <button onclick="register()">Зарегистрироваться</button>
+            <button id="register-btn">Зарегистрироваться</button>
         </div>
+        <div id="notification" style="display: none; color: red; margin-top: 10px;"></div>
     </div>
-    <script>
-        function validateField(input) {
-            let isValid = true;
-            if (input.id === 'email') {
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                isValid = emailRegex.test(input.value);
-            } else if (input.id === 'username') {
-                isValid = input.value.length <= 15 && input.value.length > 0;
-            } else if (input.id === 'password' || input.id === 'confirm-password') {
-                const password = document.getElementById('password').value;
-                const confirmPassword = document.getElementById('confirm-password').value;
-                const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
-                isValid = passwordRegex.test(password) && password === confirmPassword;
-                if (input.id === 'confirm-password') {
-                    document.getElementById('password').classList.toggle('invalid', !isValid);
-                }
-            }
-            input.classList.toggle('invalid', !isValid);
-        }
-
-        function register() {
-            const email = document.getElementById('email');
-            const username = document.getElementById('username');
-            const password = document.getElementById('password');
-            const confirmPassword = document.getElementById('confirm-password');
-
-            validateField(email);
-            validateField(username);
-            validateField(password);
-            validateField(confirmPassword);
-
-            if (!email.classList.contains('invalid') && !username.classList.contains('invalid') && !password.classList.contains('invalid') && !confirmPassword.classList.contains('invalid')) {
-                localStorage.setItem('user', username.value);
-                showNotification('Регистрация успешна!');
-                window.location.href = 'index.html';
-            } else {
-                showNotification('Проверьте введенные данные.');
-            }
-        }
-    </script>
+    <script src="js/register.js"></script>
 </body>
 </html>
+</DOCUMENT>

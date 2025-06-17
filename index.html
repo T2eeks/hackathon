@@ -21,28 +21,46 @@
         </nav>
         
     </header>
+
     <main>
-        <div class="note-creation">
+        <section class="note-creation">
             <h2>Создать заметку</h2>
-            <textarea id="note-text" placeholder="Введите текст заметки..." rows="4" cols="50"></textarea>
-            <button class="record-btn" id="record-btn">Записать голос</button>
-            <button class="record-btn" id="stop-btn" style="display: none;">Остановить запись</button>
-            <button class="record-btn" id="play-btn" style="display: none;">Прослушать</button>
-            <button class="record-btn" id="save-btn" style="display: none;">Сохранить</button>
-            <button class="record-btn" id="record-again-btn" style="display: none;">Перезаписать</button>
-            <button class="record-btn" id="save-text-btn" style="display: none;">Сохранить заметку</button>
-            <audio id="audio-player" style="display: none;"></audio>
-        </div>
-        <div class="notes-overlay" id="notes-overlay"></div>
-        <div class="notes-sidebar" id="notes-sidebar">
-            <div class="notes-header">
-                <h3>Запланированные задачи</h3>
-                <button class="close-notes" id="close-notes">×</button>
-            </div>
-            <div class="notes-items" id="notes-items"></div>
-        </div>
-        <div class="notification" id="notification"></div>
+            <textarea id="note-text" placeholder="Введите текст заметки или запишите голосовую..."></textarea>
+            <button id="record-btn" class="record-btn">Записать голос</button>
+            <button id="stop-btn" class="record-btn" style="display: none;">Остановить запись</button>
+            <button id="play-btn" class="record-btn" style="display: none;">Прослушать</button>
+            <button id="save-btn" class="record-btn" style="display: none;">Сохранить</button>
+            <button id="record-again-btn" class="record-btn" style="display: none;">Перезаписать</button>
+            <button id="save-text-btn" class="record-btn" style="display: none;">Сохранить заметку</button>
+            <audio id="audio-player" controls style="display: none;"></audio>
+        </section>
+
+        <div id="notification"></div>
     </main>
+
+    <div id="notes-overlay" class="notes-overlay"></div>
+    <aside id="notes-sidebar" class="notes-sidebar">
+        <div class="notes-header">
+            <h2>Запланированные задачи</h2>
+            <button id="close-notes" class="close-notes">×</button>
+        </div>
+        <div id="notes-items"></div>
+    </aside>
+
+    <div id="map-modal" class="map-modal">
+        <div class="map-modal-content">
+            <button id="close-map" class="close-map">×</button>
+            <div id="map-container"></div>
+        </div>
+    </div>
+
+    <div id="location-confirm-slider" class="location-confirm-slider">
+        <p id="confirm-address">Адрес: </p>
+        <button id="confirm-location-btn" class="confirm-btn">Подтвердить</button>
+        <button id="cancel-location-btn" class="cancel-btn">Отменить</button>
+    </div>
+
     <script src="js/script.js"></script>
+    <script src="js/map.js"></script>
 </body>
 </html>

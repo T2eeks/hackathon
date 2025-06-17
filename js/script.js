@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const formData = new FormData();
         formData.append('UserId', userId);
-        formData.append('TextContent', noteText);
+        formData.append('Text', noteText);
         formData.append('WavFile', audioBlob, 'voice.wav');
         // Отправляем null для Latitude и Longitude, так как они опциональны
         // formData.append('Latitude', '');
@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const formData = new FormData();
         formData.append('UserId', userId);
-        formData.append('TextContent', noteText);
+        formData.append('Text', noteText);
         // formData.append('Latitude', '');
         // formData.append('Longitude', '');
 

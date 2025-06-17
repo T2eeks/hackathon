@@ -1,18 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
     const registerBtn = document.getElementById('register-btn');
     const notification = document.getElementById('notification');
-    const email = document.getElementById('email');
-    const username = document.getElementById('username');
+    const loginInput = document.getElementById('login');
+    const nameInput = document.getElementById('name');
     const password = document.getElementById('password');
     const confirmPassword = document.getElementById('confirm-password');
 
     function validateField(input) {
         let isValid = true;
-        if (input.id === 'email') {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            isValid = emailRegex.test(input.value.trim());
-        } else if (input.id === 'username') {
+        if (input.id === 'login') {
             isValid = input.value.trim().length > 0 && input.value.trim().length <= 15;
+        } else if (input.id === 'name') {
+            isValid = input.value.trim().length > 0;
+            input.value = input.value.trim().charAt(0).toUpperCase() + input.value.trim().slice(1);
         } else if (input.id === 'password' || input.id === 'confirm-password') {
             const passwordValue = password.value.trim();
             const confirmPasswordValue = confirmPassword.value.trim();
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return isValid;
     }
 
-    [email, username, password, confirmPassword].forEach(input => {
+    [loginInput, nameInput, password, confirmPassword].forEach(input => {
         input.addEventListener('input', () => validateField(input));
     });
 
@@ -42,17 +42,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     registerBtn.addEventListener('click', () => {
         console.log('Кнопка регистрации нажата');
-        const isEmailValid = validateField(email);
-        const isUsernameValid = validateField(username);
+        const isLoginValid = validateField(loginInput);
+        const isNameValid = validateField(nameInput);
         const isPasswordValid = validateField(password);
         const isConfirmValid = validateField(confirmPassword);
 
-        console.log('Валидация:', { isEmailValid, isUsernameValid, isPasswordValid, isConfirmValid });
+        console.log('Валидация:', { isLoginValid, isNameValid, isPasswordValid, isConfirmValid });
 
-        if (isEmailValid && isUsernameValid && isPasswordValid && isConfirmValid) {
+        if (isLoginValid && isNameValid && isPasswordValid && isConfirmValid) {
             const userData = {
-                username: username.value.trim(),
-                email: email.value.trim(),
+                login: loginInput.value.trim(),
+                name: nameInput.value.trim(),
                 password: password.value.trim()
             };
             console.log('Отправляем данные:', userData);
@@ -65,23 +65,35 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => {
                 console.log('Ответ сервера:', response);
                 if (!response.ok) {
-                    if (response.status === 400) throw new Error('Пользователь уже существует или неверные данные');
-                    throw new Error(`Ошибка регистрации: ${response.statusText}`);
+                    return response.json().then(data => {
+                        const errorMessage = data.error || data.message || `Ошибка регистрации: ${response.statusText}`;
+                        if (response.status === 400) {
+                            throw new Error(errorMessage || 'Пользователь уже существует или неверные данные');
+                        }
+                        throw new Error(errorMessage);
+                    });
                 }
                 return response.json();
             })
             .then(data => {
                 console.log('Данные от сервера:', data);
-                if (data.token && data.user && data.user.id) {
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('user', data.user.username);
-                    localStorage.setItem('userId', data.user.id);
+                // Проверяем возможные форматы ответа
+                const token = data.token || data.accessToken;
+                const user = data.user || data;
+                const userId = user?.id || user?.userId;
+                const userLogin = user?.login || user?.username;
+
+                if (token && userId && userLogin) {
+                    localStorage.setItem('token', token);
+                    localStorage.setItem('user', userLogin);
+                    localStorage.setItem('userId', userId);
                     showNotification('Регистрация успешна!', true);
                     setTimeout(() => {
                         window.location.href = 'index.html';
                     }, 1000);
                 } else {
-                    throw new Error('Неверный формат ответа сервера.');
+                    console.error('Неверный формат ответа:', JSON.stringify(data));
+                    throw new Error(`Неверный формат ответа сервера: ${JSON.stringify(data)}`);
                 }
             })
             .catch(error => {

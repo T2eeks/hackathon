@@ -1,12 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     const loginBtn = document.getElementById('login-btn');
     const notification = document.getElementById('notification');
-    const username = document.getElementById('username');
+    const loginInput = document.getElementById('login'); // Было username
     const password = document.getElementById('password');
 
     function validateField(input) {
         let isValid = true;
-        if (input.id === 'username') {
+        if (input.id === 'login') {
             isValid = input.value.trim().length > 0 && input.value.trim().length <= 15;
         } else if (input.id === 'password') {
             const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return isValid;
     }
 
-    [username, password].forEach(input => {
+    [loginInput, password].forEach(input => {
         input.addEventListener('input', () => validateField(input));
     });
 
@@ -33,14 +33,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loginBtn.addEventListener('click', () => {
         console.log('Кнопка входа нажата');
-        const isUsernameValid = validateField(username);
+        const isLoginValid = validateField(loginInput);
         const isPasswordValid = validateField(password);
 
-        console.log('Валидация:', { isUsernameValid, isPasswordValid });
+        console.log('Валидация:', { isLoginValid, isPasswordValid });
 
-        if (isUsernameValid && isPasswordValid) {
+        if (isLoginValid && isPasswordValid) {
             const userData = {
-                username: username.value.trim(),
+                login: loginInput.value.trim(),
                 password: password.value.trim()
             };
             console.log('Отправляем данные:', userData);
@@ -53,23 +53,30 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => {
                 console.log('Ответ сервера:', response);
                 if (!response.ok) {
-                    if (response.status === 401) throw new Error('Неверное имя пользователя или пароль');
+                    if (response.status === 401) throw new Error('Неверный логин или пароль');
                     throw new Error(`Ошибка входа: ${response.statusText}`);
                 }
                 return response.json();
             })
             .then(data => {
                 console.log('Данные от сервера:', data);
-                if (data.token && data.user && data.user.id) {
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('user', data.user.username);
-                    localStorage.setItem('userId', data.user.id);
+                // Проверяем возможные форматы ответа
+                const token = data.token || data.accessToken;
+                const user = data.user || data;
+                const userId = user?.id || user?.userId;
+                const userLogin = user?.login || user?.username;
+
+                if (token && userId && userLogin) {
+                    localStorage.setItem('token', token);
+                    localStorage.setItem('user', userLogin);
+                    localStorage.setItem('userId', userId);
                     showNotification('Вход успешен!', true);
                     setTimeout(() => {
                         window.location.href = 'index.html';
                     }, 1000);
                 } else {
-                    throw new Error('Неверный формат ответа сервера.');
+                    console.error('Неверный формат ответа:', JSON.stringify(data));
+                    throw new Error(`Неверный формат ответа сервера: ${JSON.stringify(data)}`);
                 }
             })
             .catch(error => {

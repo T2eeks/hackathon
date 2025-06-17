@@ -15,12 +15,11 @@ function initMap(noteId, token, userId, onLocationSelected) {
     script.onload = () => {
         ymaps.ready(() => {
             map = new ymaps.Map('map-container', {
-                center: [55.751244, 37.618423], 
+                center: [56.48466329899591, 84.94837595719432], 
                 zoom: 10,
                 controls: []
             });
 
-            
             map.controls.add('zoomControl');
             map.controls.add('typeSelector');
             map.controls.add('fullscreenControl');
@@ -109,7 +108,6 @@ function showLocationConfirmation(noteId, token, coords, address, userId, onLoca
     
     slider.querySelector('.confirm-btn.no').onclick = () => {
         slider.classList.remove('show');
-    
     };
 }
 
@@ -117,10 +115,11 @@ function sendLocationToBackend(noteId, token, coords, address, userId, onLocatio
     const [latitude, longitude] = coords;
     const locationData = {
         latitude: latitude,
-        longitude: longitude
+        longitude: longitude,
+        locationName: address
     };
     
-    console.log('Отправка:', { noteId, userId, locationData }); // Логирование для отладки
+    console.log('Отправка:', { noteId, userId, locationData });
     
     fetch(`http://localhost:5057/api/inputs/location/${noteId}?userId=${userId}`, {
         method: 'POST',
@@ -132,12 +131,22 @@ function sendLocationToBackend(noteId, token, coords, address, userId, onLocatio
     })
     .then(response => {
         if (response.ok) {
-            showNotification('Локация сохранена!', true);
-            if (onLocationSelected) {
-                onLocationSelected({ 
-                    address: address 
-                });
-            }
+            return response.json().then(data => {
+                showNotification('Локация сохранена!', true);
+                if (onLocationSelected) {
+                    onLocationSelected({
+                        address: address,
+                        taskId: data.Task?.TaskId || noteId
+                    });
+                }
+                let notes = JSON.parse(localStorage.getItem('notes') || '[]');
+                notes = notes.map(note => 
+                    note.taskId == noteId 
+                        ? { ...note, locationName: address, location: `(${latitude}, ${longitude})` }
+                        : note
+                );
+                localStorage.setItem('notes', JSON.stringify(notes));
+            });
         } else {
             return response.json().then(err => {
                 throw new Error(err.Error || 'Ошибка сохранения локации');
@@ -163,7 +172,6 @@ function closeMapModal() {
         document.getElementById('map-container').innerHTML = '';
     }, 300);
 }
-
 
 function showNotification(message, isSuccess) {
     const notification = document.getElementById('notification');

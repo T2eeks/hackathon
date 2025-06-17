@@ -93,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('UserId', userId);
         formData.append('Text', noteText);
         formData.append('AudioFile', audioBlob, 'voice.wav');
+        formData.append('LocationName', '');
 
         fetch('http://localhost:5057/api/inputs/audio', {
             method: 'POST',
@@ -114,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(data => {
             showNotification('Голосовая заметка сохранена!', true);
             saveNoteLocally({
-                taskId: data.Task?.TaskId || Date.now().toString(), // Сохраняем taskId из ответа бэкенда
+                taskId: data.Task?.TaskId || Date.now().toString(),
                 type: 'voice',
                 name: data.Task?.Name || noteText,
                 text: noteText,
@@ -154,6 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('UserId', userId);
         formData.append('Text', noteText);
         formData.append('IsCompleted', 'false');
+        formData.append('LocationName', '');
 
         fetch('http://localhost:5057/api/inputs/text', {
             method: 'POST',
@@ -175,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(data => {
             showNotification('Текстовая заметка сохранена!', true);
             saveNoteLocally({
-                taskId: data.Task?.TaskId || Date.now().toString(), // Сохраняем taskId из ответа бэкенда
+                taskId: data.Task?.TaskId || Date.now().toString(),
                 type: 'text',
                 name: data.Task?.Name || noteText,
                 text: noteText,
@@ -283,15 +285,16 @@ document.addEventListener('DOMContentLoaded', () => {
                                     '${note.text}',
                                     '${note.category}',
                                     '${note.createdAt}',
-                                    '${note.locationName}',
+                                    '${note.locationName || ''}',
                                     '${note.dueTime}',
                                     ${note.isCompleted}
                                 )">
                                     <h4>${note.name}</h4>
                                     <p class="note-date">${note.createdAt}</p>
+                                    ${note.locationName ? `<p class="note-location">${note.locationName}</p>` : ''}
                                 </div>
                                 <button class="complete-btn" onclick="toggleTaskCompletion('${note.taskId}', ${note.isCompleted})">
-                                    ${note.isCompleted ? 'Снять отметку' : 'Не выполнено'}
+                                    ${note.isCompleted ? 'Снять отметку' : 'Выполнено'}
                                 </button>
                             </div>
                         `).join('')}
@@ -319,12 +322,13 @@ document.addEventListener('DOMContentLoaded', () => {
                                     '${note.text}',
                                     '${note.category}',
                                     '${note.createdAt}',
-                                    '${note.locationName}',
+                                    '${note.locationName || ''}',
                                     '${note.dueTime}',
                                     ${note.isCompleted}
                                 )">
                                     <h4>${note.name}</h4>
                                     <p class="note-date">${note.createdAt}</p>
+                                    ${note.locationName ? `<p class="note-location">${note.locationName}</p>` : ''}
                                 </div>
                                 <button class="complete-btn" onclick="toggleTaskCompletion('${note.taskId}', ${note.isCompleted})">
                                     ${note.isCompleted ? 'Снять отметку' : 'Выполнено'}
@@ -348,7 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p><strong>Текст:</strong> ${text}</p>
                 <p><strong>Категория:</strong> ${category}</p>
                 <p><strong>Дата создания:</strong> ${createdAt}</p>
-                ${locationName ? `<p><strong>Локация:</strong> ${locationName}</p>` : ''}
+                <p><strong>Локация:</strong> ${locationName || 'Не указана'}</p>
                 ${dueTime ? `<p><strong>Время выполнения:</strong> ${dueTime}</p>` : ''}
                 <p><strong>Статус:</strong> ${isCompleted ? 'Выполнено' : 'Не выполнено'}</p>
                 <button class="note-detail-btn" onclick="toggleTaskCompletion('${taskId}', ${isCompleted})">
@@ -370,16 +374,15 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         initMap(taskId, token, userId, (locationData) => {
-            // Обновляем локальное хранилище и UI после выбора локации
             let notes = JSON.parse(localStorage.getItem('notes') || '[]');
-            const note = notes.find(note => note.taskId === taskId);
+            const note = notes.find(note => note.taskId == taskId);
             if (!note) {
                 showNotification('Заметка не найдена в локальном хранилище.', false);
-                showNotesModal(); // Возвращаемся к списку заметок
+                showNotesModal();
                 return;
             }
             notes = notes.map(note => 
-                note.taskId === taskId 
+                note.taskId == taskId 
                     ? { ...note, locationName: locationData.address }
                     : note
             );
@@ -432,7 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(data => {
             showNotification(`Заметка ${isCompleted ? 'не выполнена' : 'выполнена'}!`, true);
             let notes = JSON.parse(localStorage.getItem('notes') || '[]');
-            notes = notes.map(note => note.taskId === taskId ? { ...note, isCompleted: !isCompleted } : note);
+            notes = notes.map(note => note.taskId == taskId ? { ...note, isCompleted: !isCompleted } : note);
             localStorage.setItem('notes', JSON.stringify(notes));
             showNotesModal();
         })
@@ -450,8 +453,7 @@ document.addEventListener('DOMContentLoaded', () => {
         note.date = new Date().toISOString().split('T')[0];
         note.isCompleted = note.isCompleted ?? false;
         let notes = JSON.parse(localStorage.getItem('notes') || '[]');
-        // Проверяем, не существует ли заметка с таким taskId
-        notes = notes.filter(n => n.taskId !== note.taskId); // Удаляем старую версию, если есть
+        notes = notes.filter(n => n.taskId !== note.taskId);
         notes.push(note);
         localStorage.setItem('notes', JSON.stringify(notes));
     }

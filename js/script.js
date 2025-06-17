@@ -92,12 +92,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData();
         formData.append('UserId', userId);
         formData.append('Text', noteText);
-        formData.append('WavFile', audioBlob, 'voice.wav');
-        // Отправляем null для Latitude и Longitude, так как они опциональны
-        // formData.append('Latitude', '');
-        // formData.append('Longitude', '');
+        formData.append('AudioFile', audioBlob, 'voice.wav');
+        // formData.append('IsCompleted', 'false');
 
-        fetch('http://localhost:5057/api/inputs/wav', {
+        fetch('http://localhost:5057/api/inputs/audio', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` },
             body: formData
@@ -145,8 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData();
         formData.append('UserId', userId);
         formData.append('Text', noteText);
-        // formData.append('Latitude', '');
-        // formData.append('Longitude', '');
+        formData.append('IsCompleted', 'false');
 
         fetch('http://localhost:5057/api/inputs/text', {
             method: 'POST',
@@ -206,99 +203,193 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function showNotesModal() {
-        const sidebar = document.getElementById('notes-sidebar');
-        const overlay = document.getElementById('notes-overlay');
-        if (!sidebar || !overlay) {
-            console.error('Элемент notes-sidebar или notes-overlay не найден!');
-            return;
-        }
-        if (!localStorage.getItem('user')) {
-            document.getElementById('notes-items').innerHTML = '<p>Вы не авторизованы. <a href="register.html">Зарегистрироваться</a> либо <a href="login.html">Авторизоваться</a></p>';
-            sidebar.classList.add('active');
-            overlay.classList.add('active');
-            return;
-        }
-
-        const userId = localStorage.getItem('userId');
-        if (!userId) {
-            showNotification('Ошибка: ID пользователя не найден.', false);
-            return;
-        }
-
-        // Загружаем заметки с сервера
-        fetch(`http://localhost:5057/api/tasks?userId=${userId}`, {
-            method: 'GET',
-            headers: { 'Authorization': `Bearer ${token}` }
-        })
-        .then(response => {
-            if (response.status === 200) {
-                return response.json();
-            } else if (response.status === 400) {
-                return response.json().then(data => { throw new Error(data.Error || 'Неверный запрос.') });
-            } else if (response.status === 401) {
-                throw new Error('Неавторизован. Пожалуйста, войдите снова.');
-            } else {
-                throw new Error(`Ошибка ${response.status}: ${response.statusText}`);
-            }
-        })
-        .then(tasks => {
-            localStorage.setItem('notes', JSON.stringify(tasks.map(task => ({
-                type: task.WavContent ? 'voice' : 'text',
-                text: task.TextContent || 'Без текста',
-                audioUrl: task.WavContent ? URL.createObjectURL(new Blob([new Uint8Array(task.WavContent)], { type: 'audio/wav' })) : '',
-                date: task.CreatedAt ? new Date(task.CreatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
-            }))));
-            const notes = JSON.parse(localStorage.getItem('notes') || '[]');
-            if (notes.length === 0) {
-                document.getElementById('notes-items').innerHTML = '<p>Тут пока ничего нет(</p>';
-            } else {
-                document.getElementById('notes-items').innerHTML = '<h3>Мои заметки</h3><ul>' + notes.map(note => `
-                    <li class="${note.type}-note" onclick="showNoteDetails('${note.type}', '${note.text}', '${note.audioUrl || ''}')">
-                        ${note.type === 'voice' ? 'Голосовая заметка' : 'Текстовая заметка'} (${note.date})
-                    </li>
-                `).join('') + '</ul>';
-            }
-            sidebar.classList.add('active');
-            overlay.classList.add('active');
-        })
-        .catch(error => {
-            console.error('Ошибка загрузки заметок:', error);
-            showNotification('Ошибка загрузки заметок: ' + error.message, false);
-            // Показываем локальные заметки, если сервер недоступен
-            const notes = JSON.parse(localStorage.getItem('notes') || '[]');
-            if (notes.length === 0) {
-                document.getElementById('notes-items').innerHTML = '<p>Тут пока ничего нет(</p>';
-            } else {
-                document.getElementById('notes-items').innerHTML = '<h3>Мои заметки</h3><ul>' + notes.map(note => `
-                    <li class="${note.type}-note" onclick="showNoteDetails('${note.type}', '${note.text}', '${note.audioUrl || ''}')">
-                        ${note.type === 'voice' ? 'Голосовая заметка' : 'Текстовая заметка'} (${note.date})
-                    </li>
-                `).join('') + '</ul>';
-            }
-            sidebar.classList.add('active');
-            overlay.classList.add('active');
-        });
+    const sidebar = document.getElementById('notes-sidebar');
+    const overlay = document.getElementById('notes-overlay');
+    if (!sidebar || !overlay) {
+        console.error('Элемент notes-sidebar или notes-overlay не найден!');
+        return;
+    }
+    if (!localStorage.getItem('user')) {
+        document.getElementById('notes-items').innerHTML = '<p>Вы не авторизованы. <a href="register.html">Зарегистрироваться</a> либо <a href="login.html">Авторизоваться</a></p>';
+        sidebar.classList.add('active');
+        overlay.classList.add('active');
+        return;
     }
 
-    function showNoteDetails(type, text, audioUrl) {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        showNotification('Ошибка: ID пользователя не найден.', false);
+        return;
+    }
+
+    fetch(`http://localhost:5057/api/tasks/user/${userId}`, {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` }
+    })
+    .then(response => {
+        if (response.status === 200) {
+            return response.json();
+        } else if (response.status === 400) {
+            return response.json().then(data => { throw new Error(data.error || 'Неверный запрос.') });
+        } else if (response.status === 401) {
+            throw new Error('Неавторизован. Пожалуйста, войдите снова.');
+        } else {
+            throw new Error(`Ошибка ${response.status}: ${response.statusText}`);
+        }
+    })
+    .then(tasks => {
+        localStorage.setItem('notes', JSON.stringify(tasks.map(task => ({
+            taskId: task.taskId,
+            name: task.name,
+            text: task.text || 'Без текста',
+            category: task.category,
+            createdAt: task.createdAt ? new Date(task.createdAt).toLocaleString('ru-RU', { dateStyle: 'short', timeStyle: 'short' }) : 'Нет даты',
+            location: task.location || '',
+            dueTime: task.dueTime ? new Date(task.dueTime).toLocaleString('ru-RU', { dateStyle: 'short', timeStyle: 'short' }) : '',
+            isCompleted: task.isCompleted || false
+        }))));
+        const notes = JSON.parse(localStorage.getItem('notes') || '[]');
+        if (notes.length === 0) {
+            document.getElementById('notes-items').innerHTML = '<p>Тут пока ничего нет :(</p>';
+        } else {
+            document.getElementById('notes-items').innerHTML = `
+                <h3>Мои заметки</h3>
+                <div class="notes-list">
+                    ${notes.map(note => `
+                        <div class="note-card ${note.isCompleted ? 'completed' : ''}">
+                            <div class="note-content" onclick="showNoteDetails(
+                                '${note.taskId}',
+                                '${note.name}',
+                                '${note.text}',
+                                '${note.category}',
+                                '${note.createdAt}',
+                                '${note.location}',
+                                '${note.dueTime}',
+                                ${note.isCompleted}
+                            )">
+                                <h4>${note.name}</h4>
+                                <p class="note-date">${note.createdAt}</p>
+                            </div>
+                            <button class="complete-btn" onclick="toggleTaskCompletion('${note.taskId}', ${note.isCompleted})">
+                                ${note.isCompleted ? 'Снять отметку' : 'Не выполнено'}
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        sidebar.classList.add('active');
+        overlay.classList.add('active');
+    })
+    .catch(error => {
+        console.error('Ошибка загрузки заметок:', error);
+        showNotification('Ошибка загрузки заметок: ' + error.message, false);
+        const notes = JSON.parse(localStorage.getItem('notes') || '[]');
+        if (notes.length === 0) {
+            document.getElementById('notes-items').innerHTML = '<p>Тут пока ничего нет :(</p>';
+        } else {
+            document.getElementById('notes-items').innerHTML = `
+                <h3>Мои заметки</h3>
+                <div class="notes-list">
+                    ${notes.map(note => `
+                        <div class="note-card ${note.isCompleted ? 'completed' : ''}">
+                            <div class="note-content" onclick="showNoteDetails(
+                                '${note.taskId}',
+                                '${note.name}',
+                                '${note.text}',
+                                '${note.category}',
+                                '${note.createdAt}',
+                                '${note.location}',
+                                '${note.dueTime}',
+                                ${note.isCompleted}
+                            )">
+                                <h4>${note.name}</h4>
+                                <p class="note-date">${note.createdAt}</p>
+                            </div>
+                            <button class="complete-btn" onclick="toggleTaskCompletion('${note.taskId}', ${note.isCompleted})">
+                                ${note.isCompleted ? 'Снять отметку' : 'Выполнено'}
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        sidebar.classList.add('active');
+        overlay.classList.add('active');
+    });
+}
+
+    function showNoteDetails(taskId, name, text, category, createdAt, location, dueTime, isCompleted) {
         const items = document.getElementById('notes-items');
         items.innerHTML = `
             <h3>Детали заметки</h3>
             <div class="note-detail">
-                <p><strong>Тип:</strong> <img src="img/${type === 'voice' ? 'micro.png' : 'node.png'}" alt="${type}">${type === 'voice' ? 'Голосовая' : 'Текстовая'}</p>
+                <h4>${name}</h4>
                 <p><strong>Текст:</strong> ${text}</p>
-                ${type === 'voice' && audioUrl ? `<audio controls src="${audioUrl}"></audio>` : ''}
-                <button onclick="returnToNotes()">Вернуться</button>
+                <p><strong>Категория:</strong> ${category}</p>
+                <p><strong>Дата создания:</strong> ${createdAt}</p>
+                ${location ? `<p><strong>Локация:</strong> ${location}</p>` : ''}
+                ${dueTime ? `<p><strong>Время выполнения:</strong> ${dueTime}</p>` : ''}
+                <p><strong>Статус:</strong> ${isCompleted ? 'Выполнено' : 'Не выполнено'}</p>
+                <button class="complete-btn" onclick="toggleTaskCompletion('${taskId}', ${isCompleted})">
+                    ${isCompleted ? 'Снять отметку' : 'Отметить выполненной'}
+                </button>
+                <button class="return-btn" onclick="returnToNotes()">Вернуться</button>
             </div>
         `;
     }
 
+    function toggleTaskCompletion(taskId, isCompleted) {
+    if (!token) {
+        showNotification('Пожалуйста, войдите или зарегистрируйтесь.', false);
+        return;
+    }
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        showNotification('Ошибка: ID пользователя не найден.', false);
+        return;
+    }
+
+    fetch(`http://localhost:5057/api/tasks/${taskId}/complete`, {
+        method: 'PUT', 
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ isCompleted: !isCompleted })
+    })
+    .then(response => {
+        if (response.status === 200) {
+            return response.json();
+        } else if (response.status === 400) {
+            return response.json().then(data => { throw new Error(data.error || 'Неверный запрос.') });
+        } else if (response.status === 401) {
+            throw new Error('Неавторизован. Пожалуйста, войдите снова.');
+        } else if (response.status === 404) {
+            throw new Error('Заметка не найдена.');
+        } else {
+            throw new Error(`Ошибка ${response.status}: ${response.statusText}`);
+        }
+    })
+    .then(data => {
+        showNotification(`Заметка ${isCompleted ? 'не выполнена' : 'выполнена'}!`, true);
+        let notes = JSON.parse(localStorage.getItem('notes') || '[]');
+        notes = notes.map(note => note.taskId === taskId ? { ...note, isCompleted: !isCompleted } : note);
+        localStorage.setItem('notes', JSON.stringify(notes));
+        showNotesModal();
+    })
+    .catch(error => {
+        console.error('Ошибка обновления статуса:', error);
+        showNotification('Ошибка: ' + error.message, false);
+    });
+}
     function returnToNotes() {
         showNotesModal();
     }
 
     function saveNoteLocally(note) {
         note.date = new Date().toISOString().split('T')[0];
+        note.isCompleted = note.isCompleted ?? false;
         let notes = JSON.parse(localStorage.getItem('notes') || '[]');
         notes.push(note);
         localStorage.setItem('notes', JSON.stringify(notes));
@@ -349,7 +440,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     });
 
-    // Экспортируем функции для тестирования (если нужно)
     window.startRecording = startRecording;
     window.stopRecording = stopRecording;
     window.playAudio = playAudio;
@@ -362,4 +452,5 @@ document.addEventListener('DOMContentLoaded', () => {
     window.returnToNotes = returnToNotes;
     window.saveNoteLocally = saveNoteLocally;
     window.showNotification = showNotification;
+    window.toggleTaskCompletion = toggleTaskCompletion;
 });

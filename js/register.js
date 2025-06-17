@@ -77,7 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .then(data => {
                 console.log('Данные от сервера:', data);
-                // Проверяем возможные форматы ответа
                 const token = data.token || data.accessToken;
                 const user = data.user || data;
                 const userId = user?.id || user?.userId;

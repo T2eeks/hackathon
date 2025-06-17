@@ -172,6 +172,68 @@ nav a:hover {
     visibility: visible;
 }
 
+.notes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.note-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 15px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.note-card.completed {
+    background: #e6f4ea;
+    opacity: 0.9;
+}
+
+
+.complete-btn {
+    background: #dc3545;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 15px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-left: 10px;
+}
+
+.complete-btn:hover {
+    background: #c82333;
+}
+
+.note-card.completed .complete-btn {
+    background: #28a745;
+}
+
+.note-card.completed .complete-btn:hover {
+    background: #208e3a;
+}
+
+.note-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.note-card h4 {
+    margin: 0 0 10px;
+    font-size: 18px;
+    color: #333;
+}
+
+.note-date {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+}
+
 .notes-sidebar {
     position: fixed;
     top: 0;
@@ -234,15 +296,26 @@ nav a:hover {
 }
 
 .note-detail {
-    padding: 15px;
-    background-color: #f9f9f9;
+    background: #fff;
     border-radius: 8px;
-    margin-top: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.note-detail h4 {
+    margin: 0 0 15px;
+    font-size: 22px;
+    color: #333;
 }
 
 .note-detail p {
-    margin: 5px 0;
+    margin: 10px 0;
     font-size: 16px;
+    color: #444;
+}
+
+.note-detail p strong {
+    color: #222;
 }
 
 .note-detail img {
@@ -257,13 +330,39 @@ nav a:hover {
 }
 
 .note-detail button {
-    padding: 8px 15px;
-    background-color: #ffcc00;
+    background: #ffcc00;
+    color: #fff;
     border: none;
     border-radius: 5px;
-    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
     cursor: pointer;
-    margin-top: 10px;
+    margin-top: 20px;
+    transition: background 0.2s
+}
+
+#notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 16px;
+    display: none;
+    z-index: 1001;
+}
+
+#notification.show {
+    display: block;
+}
+
+#notification[style*="green"] {
+    background: #28a745;
+}
+
+#notification[style*="red"] {
+    background: #dc3545;
 }
 
 .note-detail button:hover {

@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const loginBtn = document.getElementById('login-btn');
     const notification = document.getElementById('notification');
-    const loginInput = document.getElementById('login'); // Было username
+    const loginInput = document.getElementById('login'); 
     const password = document.getElementById('password');
 
     function validateField(input) {
@@ -60,7 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .then(data => {
                 console.log('Данные от сервера:', data);
-                // Проверяем возможные форматы ответа
                 const token = data.token || data.accessToken;
                 const user = data.user || data;
                 const userId = user?.id || user?.userId;

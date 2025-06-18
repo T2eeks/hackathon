@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('AudioFile', audioBlob, 'voice.wav');
         formData.append('LocationName', '');
 
-        fetch('http://localhost:5057/api/inputs/audio', {
+        fetch('http://92.126.54.217:5000/api/inputs/audio', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` },
             body: formData
@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('IsCompleted', 'false');
         formData.append('LocationName', '');
 
-        fetch('http://localhost:5057/api/inputs/text', {
+        fetch('http://92.126.54.217:5000/api/inputs/text', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` },
             body: formData
@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        fetch(`http://localhost:5057/api/tasks/user/${userId}`, {
+        fetch(`http://92.126.54.217:5000/api/tasks/user/${userId}`, {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${token}` }
         })
@@ -411,7 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        fetch(`http://localhost:5057/api/tasks/${taskId}/complete`, {
+        fetch(`http://92.126.54.217:5000/api/tasks/${taskId}/complete`, {
             method: 'PUT', 
             headers: {
                 'Authorization': `Bearer ${token}`,

@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             console.log('Отправляем данные:', userData);
 
-            fetch('http://localhost:5057/api/auth/login', {
+            fetch('http://92.126.54.217:5000/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(userData)

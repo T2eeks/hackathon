@@ -121,7 +121,7 @@ function sendLocationToBackend(noteId, token, coords, address, userId, onLocatio
     
     console.log('Отправка:', { noteId, userId, locationData });
     
-    fetch(`http://localhost:5057/api/inputs/location/${noteId}?userId=${userId}`, {
+    fetch(`http://92.126.54.217:5000/api/inputs/location/${noteId}?userId=${userId}`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${token}`,

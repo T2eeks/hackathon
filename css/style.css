@@ -344,18 +344,18 @@ nav a:hover {
 #notification {
     position: fixed;
     top: 20px;
-    right: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px); /* Начальное состояние */
     padding: 15px 25px;
     border-radius: 5px;
     color: #fff;
     font-size: 16px;
     display: none;
     z-index: 1001;
+    opacity: 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-#notification.show {
-    display: block;
-}
 
 #notification[style*="green"] {
     background: #28a745;
@@ -445,12 +445,12 @@ nav a:hover {
     position: fixed;
     top: 20px;
     left: 50%;
-    transform: translateX(-50%);
     background-color: #fff;
     padding: 10px 20px;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    animation: fadeIn 0.5s ease-out;
+    animation: fadeIn 0.5s ease-out forwards;
+    transform: translateX(-50%);
 }
 
 .note-detail-btn {
@@ -469,6 +469,26 @@ nav a:hover {
 
 .note-detail-btn:hover {
     background-color: #e6b800;
+}
+.note-search {
+    width: 80%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 2px solid #D9D9D9;
+    border-radius: 5px;
+    font-size: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.3s ease;
+}
+
+.note-search:focus {
+    outline: none;
+    border-color: #ffcc00;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.note-search::placeholder {
+    color: #999;
 }
 
 .map-modal {
@@ -495,7 +515,7 @@ nav a:hover {
 .map-modal-content {
     background: white;
     border-radius: 10px;
-    padding: 20px;
+    padding: 30px;
     width: 80%;
     max-width: 800px;
     position: relative;

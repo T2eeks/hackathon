@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <base href="https://t2eeks.github.io/hackathon/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI-ассистент для напоминаний</title>
@@ -16,17 +15,15 @@
         </div>
         <nav>
             <a href="index.html">Главная</a>
-            <a href="about.html">О нас</a>
             <a href="#" class="user-profile" id="notes-link"><span id="user-login">Мои заметки</span></a>
             <a href="#" id="logout-btn" class="auth-only" style="display: none;">Выйти</a>
         </nav>
-        
     </header>
 
     <main>
         <section class="note-creation">
             <h2>Создать заметку</h2>
-            <textarea id="note-text" placeholder="Введите текст заметки или запишите голосовую..."></textarea>
+            <textarea id="note-text" placeholder="Введите текст заметки или запишите свой голос"></textarea>
             <button id="record-btn" class="record-btn">Записать голос</button>
             <button id="stop-btn" class="record-btn" style="display: none;">Остановить запись</button>
             <button id="play-btn" class="record-btn" style="display: none;">Прослушать</button>
@@ -42,9 +39,10 @@
     <div id="notes-overlay" class="notes-overlay"></div>
     <aside id="notes-sidebar" class="notes-sidebar">
         <div class="notes-header">
-            <h2>Запланированные задачи</h2>
+            <h2>Мои заметки</h2>
             <button id="close-notes" class="close-notes">×</button>
         </div>
+        <input type="text" id="note-search" placeholder="Поиск по названию заметки..." class="note-search">
         <div id="notes-items"></div>
     </aside>
 

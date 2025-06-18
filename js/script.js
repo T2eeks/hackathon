@@ -223,7 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('save-text-btn').style.display = 'none';
         }
     });
-
     function showNotesModal() {
         const sidebar = document.getElementById('notes-sidebar');
         const overlay = document.getElementById('notes-overlay');
@@ -231,6 +230,14 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Элемент notes-sidebar или notes-overlay не найден!');
             return;
         }
+
+        const searchInput = document.getElementById('note-search');
+        if (searchInput) {
+            searchInput.value = ''; 
+            searchInput.removeEventListener('input', handleSearch);
+            searchInput.addEventListener('input', handleSearch); 
+        }
+
         if (!localStorage.getItem('user')) {
             document.getElementById('notes-items').innerHTML = '<p>Вы не авторизованы. <a href="register.html">Зарегистрироваться</a> либо <a href="login.html">Авторизоваться</a></p>';
             sidebar.classList.add('active');
@@ -270,77 +277,64 @@ document.addEventListener('DOMContentLoaded', () => {
                 dueTime: task.dueTime ? new Date(task.dueTime).toLocaleString('ru-RU', { dateStyle: 'short', timeStyle: 'short' }) : '',
                 isCompleted: task.isCompleted || false
             }))));
-            const notes = JSON.parse(localStorage.getItem('notes') || '[]');
-            if (notes.length === 0) {
-                document.getElementById('notes-items').innerHTML = '<p>Тут пока ничего нет :(</p>';
-            } else {
-                document.getElementById('notes-items').innerHTML = `
-                    <h3>Мои заметки</h3>
-                    <div class="notes-list">
-                        ${notes.map(note => `
-                            <div class="note-card ${note.isCompleted ? 'completed' : ''}">
-                                <div class="note-content" onclick="showNoteDetails(
-                                    '${note.taskId}',
-                                    '${note.name}',
-                                    '${note.text}',
-                                    '${note.category}',
-                                    '${note.createdAt}',
-                                    '${note.locationName || ''}',
-                                    '${note.dueTime}',
-                                    ${note.isCompleted}
-                                )">
-                                    <h4>${note.name}</h4>
-                                    <p class="note-date">${note.createdAt}</p>
-                                    ${note.locationName ? `<p class="note-location">${note.locationName}</p>` : ''}
-                                </div>
-                                <button class="complete-btn" onclick="toggleTaskCompletion('${note.taskId}', ${note.isCompleted})">
-                                    ${note.isCompleted ? 'Снять отметку' : 'Выполнено'}
-                                </button>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            }
+            renderNotes(); 
             sidebar.classList.add('active');
             overlay.classList.add('active');
         })
         .catch(error => {
             console.error('Ошибка загрузки заметок:', error);
             showNotification('Ошибка загрузки заметок: ' + error.message, false);
-            const notes = JSON.parse(localStorage.getItem('notes') || '[]');
-            if (notes.length === 0) {
-                document.getElementById('notes-items').innerHTML = '<p>Тут пока ничего нет :(</p>';
-            } else {
-                document.getElementById('notes-items').innerHTML = `
-                    <h3>Мои заметки</h3>
-                    <div class="notes-list">
-                        ${notes.map(note => `
-                            <div class="note-card ${note.isCompleted ? 'completed' : ''}">
-                                <div class="note-content" onclick="showNoteDetails(
-                                    '${note.taskId}',
-                                    '${note.name}',
-                                    '${note.text}',
-                                    '${note.category}',
-                                    '${note.createdAt}',
-                                    '${note.locationName || ''}',
-                                    '${note.dueTime}',
-                                    ${note.isCompleted}
-                                )">
-                                    <h4>${note.name}</h4>
-                                    <p class="note-date">${note.createdAt}</p>
-                                    ${note.locationName ? `<p class="note-location">${note.locationName}</p>` : ''}
-                                </div>
-                                <button class="complete-btn" onclick="toggleTaskCompletion('${note.taskId}', ${note.isCompleted})">
-                                    ${note.isCompleted ? 'Снять отметку' : 'Выполнено'}
-                                </button>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            }
+            renderNotes(); 
             sidebar.classList.add('active');
             overlay.classList.add('active');
         });
+    }
+
+
+    function handleSearch(event) {
+        renderNotes(event.target.value.trim().toLowerCase());
+    }
+
+
+    function renderNotes(searchQuery = '') {
+        const notes = JSON.parse(localStorage.getItem('notes') || '[]');
+        const notesItems = document.getElementById('notes-items');
+        const filteredNotes = searchQuery
+            ? notes.filter(note => note.name.toLowerCase().includes(searchQuery))
+            : notes;
+
+        if (filteredNotes.length === 0) {
+            notesItems.innerHTML = searchQuery
+                ? '<p>Заметки не найдены.</p>'
+                : '<p>Тут пока ничего нет :(</p>';
+        } else {
+            notesItems.innerHTML = `
+                <h3>Мои заметки</h3>
+                <div class="notes-list">
+                    ${filteredNotes.map(note => `
+                        <div class="note-card ${note.isCompleted ? 'completed' : ''}">
+                            <div class="note-content" onclick="showNoteDetails(
+                                '${note.taskId}',
+                                '${note.name}',
+                                '${note.text}',
+                                '${note.category}',
+                                '${note.createdAt}',
+                                '${note.locationName || ''}',
+                                '${note.dueTime}',
+                                ${note.isCompleted}
+                            )">
+                                <h4>${note.name}</h4>
+                                <p class="note-date">${note.createdAt}</p>
+                                ${note.locationName ? `<p class="note-location">${note.locationName}</p>` : ''}
+                            </div>
+                            <button class="complete-btn" onclick="toggleTaskCompletion('${note.taskId}', ${note.isCompleted})">
+                                ${note.isCompleted ? 'Снять отметку' : 'Выполнено'}
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
     }
 
     function showNoteDetails(taskId, name, text, category, createdAt, locationName, dueTime, isCompleted) {

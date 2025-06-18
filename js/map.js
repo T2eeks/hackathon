@@ -184,3 +184,7 @@ function showNotification(message, isSuccess) {
         }, 3000);
     }
 }
+
+document.getElementById('close-map').addEventListener('click', () => {
+    closeMapModal();
+});
